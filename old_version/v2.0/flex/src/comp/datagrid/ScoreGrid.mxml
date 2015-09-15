@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:DataGrid xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			 xmlns:s="library://ns.adobe.com/flex/spark" 
+			 xmlns:mx="library://ns.adobe.com/flex/mx"
+			 
+			 sortableColumns="false"
+			 verticalScrollPolicy="off"
+			 dropShadowVisible="true">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import data.base.Profile;
+			import data.base.SecondMajor;
+		]]>
+	</fx:Script>
+	<mx:columns>
+		<mx:DataGridColumn width="80" dataField="sort" headerText="분류"/>
+		<mx:DataGridColumn dataField="총점" />
+		<mx:DataGridColumn dataField="전공" />
+		<mx:DataGridColumn dataField="전기" />
+		<mx:DataGridColumn dataField="전지" />
+		<mx:DataGridColumn dataField="전선" />
+		<mx:DataGridColumn dataField="다전공" visible="{Profile.secondMajorType != SecondMajor.DEEP}" />
+		<mx:DataGridColumn dataField="다전기" visible="{Profile.secondMajorType != SecondMajor.DEEP}" />
+		<mx:DataGridColumn dataField="다전지" visible="{Profile.secondMajorType != SecondMajor.DEEP}" />
+		<mx:DataGridColumn dataField="다전선" visible="{Profile.secondMajorType != SecondMajor.DEEP}" />
+		<mx:DataGridColumn dataField="교양" />
+		<mx:DataGridColumn dataField="교필" />
+		<mx:DataGridColumn dataField="핵교A" />
+		<mx:DataGridColumn dataField="핵교B" />
+		<mx:DataGridColumn dataField="일교" />
+		<mx:DataGridColumn dataField="일선" />
+	</mx:columns>
+</mx:DataGrid>

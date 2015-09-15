@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009"
+					   xmlns:s="library://ns.adobe.com/flex/spark"
+					   xmlns:mx="library://ns.adobe.com/flex/mx"
+					   xmlns:local="*"
+					   xmlns:ui="comp.ui.*"
+					   xmlns:menu="comp.menu.*" 
+					   xmlns:datagrid="comp.datagrid.*"
+					   
+					   currentState="loginFrame"
+					   creationComplete="main(event)"
+					   status="한성대 시간표 v2.1 - 2013.06.25" >
+	<s:states>
+		<s:State name="loginFrame"/>
+		<s:State name="listFrame" />
+		<s:State name="tableFrame"/>
+	</s:states>
+	
+	<fx:Script>
+		<![CDATA[
+			import data.base.Profile;
+			import data.base.*;
+			
+			include "script/main/timetable.as"
+			include "script/main/getProfile.as"
+			include "script/main/getSemester.as"
+			include "script/main/getHistory.as"
+			include "script/main/calcScore.as"
+			include "script/main/getLecture.as"
+			include "script/main/handler.as"
+			include "script/main/apply.as"
+			include "script/main/drawTable.as"
+			include "script/main/save.as"
+			include "script/main/goRetrieve.as"
+		]]>
+	</fx:Script>
+	<fx:Style source="index.css" />
+	
+	<!-- 배경 그림: 파란색 사선 무늬 -->
+	<s:BorderContainer width="100%" height="100%"
+					   backgroundImage="@Embed('asset/image/background.gif')"
+					   backgroundImageFillMode="repeat"/>
+	
+	<!-- 
+	========================================
+	로그인 프레임
+	: login.mxml 
+	: loginFrame
+	========================================
+	-->
+	<local:login id="loginMovie" 
+				 includeIn="loginFrame" 
+				 horizontalCenter="0" verticalCenter="0"
+				 parentMovie="{this}"/>	
+	
+	<!-- 
+	========================================
+	본문 프레임
+	: internal doms
+	========================================
+	-->
+	
+	<s:VGroup includeIn="listFrame, tableFrame"
+			  width="100%" height="100%">
+		
+		<!-- 상단 메뉴 -->
+		<menu:MenuNavigator parentMovie="{this}" 
+							width="100%" />
+		<ui:HGroup width="100%" height="100%" 
+				   padding="5">
+			
+			
+			<!--신청 목록-->
+			<s:Panel title="신청 목록" height="100%">
+				<ui:VGroup width="100%" height="100%" 
+						   padding="5">
+					<s:HGroup width="100%" horizontalAlign="right">
+						<s:TextInput id="apply_code" prompt="과목 코드" width="100" />
+						<s:TextInput id="apply_divide" prompt="분반" width="35" />
+						<s:Button label="추가" icon="asset/icon/check16.png"
+								  click="apply(apply_code.text, apply_divide.text);"/>
+					</s:HGroup>
+					<!-- 신청 목록 -->
+					<datagrid:ApplyGrid id="applyGrid" 
+										dataProvider="{applyAC}"
+										parentMovie="{this}"
+										width="100%" height="100%" />
+					<s:HGroup width="100%" horizontalAlign="right">
+						<s:Button includeIn="listFrame" 
+								  label="시간표" icon="asset/icon/address16.png"
+								  click="{this.currentState = 'tableFrame'}"/>
+						<s:Button includeIn="tableFrame"
+								  label="강의목록" icon="asset/icon/news16.png"
+								  click="{this.currentState = 'listFrame'}"/>
+						<s:Button label="삭제"
+								  click="cancelApplied(event)"
+								  icon="asset/icon/trash16.png" />
+					</s:HGroup>
+				</ui:VGroup>
+			</s:Panel>
+			<s:VGroup width="100%" height="100%">
+				<s:Panel title="강의목록 / 시간표" 
+						 width="100%" height="100%">
+					<!-- 
+					========================================
+					강의 목록
+					: listFrame
+					========================================
+					-->
+					<ui:VGroup includeIn="listFrame" 
+							   width="100%" height="100%" 
+							   padding="5">
+						<s:HGroup width="100%">
+							<s:ComboBox id="majorCombo" 
+										dataProvider="{data.base.Major.list}" 
+										change="majorComboChanged()"
+										width="180" />
+							<s:Spacer width="100%" />
+							<!-- 검색하기 -->
+							<s:ComboBox id="retrieveCombo" 
+										dataProvider="{Retrieve.list}" 
+										selectedIndex="0" 
+										width="100" />
+							<s:TextInput id="retrieveText" 
+										 width="150" />
+							<s:Button label="검색" 
+									  click="goRetrieve(retrieveCombo.selectedIndex, retrieveText.text);"
+									  icon="asset/icon/lens16.png" />
+						</s:HGroup>
+						<!-- 강의 목록 -->
+						<datagrid:LectureGrid dataProvider="{lectureAC}"
+											  parentMovie="{this}"
+											  width="100%" height="100%" />
+					</ui:VGroup>
+					
+					<!-- 
+					========================================
+					시간표 HTML
+					: tableFrame
+					========================================
+					-->
+					<ui:VGroup includeIn="tableFrame"
+							   width="100%" height="100%"
+							   padding="5">
+						<mx:HTML includeIn="tableFrame" 
+								 htmlText="{html}"
+								 width="100%" height="100%" />
+					</ui:VGroup>
+				</s:Panel>
+				<datagrid:ScoreGrid dataProvider="{scoreAC}" 
+									width="100%" height="100" />
+			</s:VGroup>
+		</ui:HGroup>
+	</s:VGroup>
+</s:WindowedApplication>

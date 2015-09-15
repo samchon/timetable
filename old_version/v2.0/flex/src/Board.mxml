@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Window xmlns:fx="http://ns.adobe.com/mxml/2009"
+		  xmlns:s="library://ns.adobe.com/flex/spark"
+		  xmlns:mx="library://ns.adobe.com/flex/mx"
+		  xmlns:local="*"
+		  
+		  creationComplete="main(event);"
+		  currentState="Write" 
+
+		  title="게시판"
+		  titleIcon="@Embed(source='asset/icon/twopeople16.png')"
+		  showStatusBar="false">
+	<fx:Declarations>
+		<s:ArrayCollection id="searchTypes">
+			<fx:Object label="제목" data="subject"/>
+			<fx:Object label="내용" data="memo"/>
+			<fx:Object label="작성자(이름/학번)" data="nick"/>
+		</s:ArrayCollection>
+		<s:ArrayCollection id="sortListModel">
+			<fx:Object label="자유 게시판" data="free"/>
+			<fx:Object label="정보 공유 게시판" data="debate"/>
+			<fx:Object label="질문/답변 게시판" data="qna"/>
+			<fx:Object label="요청/건의 게시판" data="request"/>
+		</s:ArrayCollection>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.core.IFlexDisplayObject;
+			import mx.managers.PopUpManager;
+			
+			include "script/board/board.as"
+			
+			private var _parentMovie:timetable;
+			public function set parentMovie(obj:timetable):void	{	_parentMovie = obj;	}
+		]]>
+	</fx:Script>
+	<s:states>
+		<s:State name="List"/>
+		<s:State name="Read"/>
+		<s:State name="Write"/>
+	</s:states>
+	<!-- 글 목록 -->
+	
+	<s:HGroup width="100%" height="100%">
+		<s:List id="sortList" width="200" height="100%" includeIn="List, Read"
+				change="doList(sortList.selectedItem.data, 1, 'none', '');"
+				dataProvider="{sortListModel}"/>
+		<s:VGroup includeIn="List" width="100%" height="100%" paddingBottom="5" paddingLeft="5"
+				  paddingRight="5" paddingTop="5">
+			
+			<s:HGroup width="100%" horizontalAlign="right">
+				<s:ComboBox id="searchType_Combo" width="100" height="22.5"
+							dataProvider="{searchTypes}" prompt="검색 항목"/>
+				<s:TextInput id="searchTxt_textInput" width="150" height="22.5"/>
+				<s:Button height="22.5" label="검 색" icon="asset/icon/lens16.png"
+						  click="doList(sort, 1, searchType_Combo.selectedItem.data, searchTxt_textInput.text)"/>
+			</s:HGroup>
+			
+			<mx:DataGrid id="dg" width="100%" height="100%"
+						 change="doRead(sort, dg.selectedItem.uid)" dataProvider="{listData}">
+				<mx:columns>
+					<mx:DataGridColumn width="80" dataField="uid" headerText="글 번호"/>
+					<mx:DataGridColumn dataField="subject" headerText="제 목"/>
+					<mx:DataGridColumn width="120" dataField="nick" headerText="글쓴이"/>
+					<mx:DataGridColumn width="80" dataField="hit" headerText="조회수"/>
+					<mx:DataGridColumn width="100" dataField="timestamp" headerText="날 짜"/>
+				</mx:columns>
+			</mx:DataGrid>
+			<s:HGroup width="100%">
+				<s:HGroup width="50%" horizontalAlign="left" verticalAlign="middle">
+					<s:Button label="목록으로" click="doList(sort, 1, 'none', 'empty')" icon="asset/icon/news16.png"/>
+					<s:Label text="   현재 페이지/전체 페이지 : "/>
+					<s:NumericStepper id="targetPage" width="70" height="20"/>
+					<s:Label text=" / "/>
+					<s:Label id="totalPageLabel"/>
+					<s:Button label="이동" icon="asset/icon/move16.png"
+							  click="doList(sort, targetPage.value, searchType, searchTxt)"/>
+				</s:HGroup>
+				<s:HGroup width="50%" horizontalAlign="right">
+					<s:Button label="글쓰기" click="goWrite('write', 0, '', '')" icon="asset/icon/write16.png"/>
+				</s:HGroup>
+			</s:HGroup>
+		</s:VGroup>
+		
+		<!-- 글 읽기 -->
+		
+		<s:VGroup includeIn="Read" width="100%" height="100%" paddingLeft="5" paddingRight="5" paddingTop="5" paddingBottom="5">
+			<s:HGroup width="100%">
+				<s:HGroup width="50%" horizontalAlign="left">
+					<s:Label text="글 번호 : "/>
+					<s:Label id="read_no"/>
+				</s:HGroup>
+				<s:HGroup width="50%" horizontalAlign="left">
+					<s:Label id="read_timestamp"/>
+				</s:HGroup>
+			</s:HGroup>
+			<s:HGroup width="100%">
+				<s:HGroup width="50%" horizontalAlign="left">
+					<s:Label text="작성자 : "/>
+					<s:Label id="read_nick"/>
+				</s:HGroup>
+				<s:HGroup width="50%" horizontalAlign="left">
+					<s:Label id="read_ip"/>
+				</s:HGroup>
+			</s:HGroup>
+			<s:Label id="empty"/>
+			<s:TextArea id="read_subject" width="100%" height="25" editable="false"/>
+			
+			
+			<s:BorderContainer width="100%" height="100%">
+				<mx:Canvas width="100%" height="100%">  
+					<s:Scroller width="100%" height="100%" horizontalScrollPolicy="off">
+						<s:RichEditableText id="read_memo" width="100%" height="100%" editable="false"/>
+					</s:Scroller>
+				</mx:Canvas>
+			</s:BorderContainer>
+			
+			
+			<s:HGroup width="100%">
+				<s:HGroup width="50%" horizontalAlign="left">
+					<s:Button label="목록으로" click="doList(sort, page, searchType, searchTxt)" 
+							  icon="asset/icon/news16.png"/>
+				</s:HGroup>
+				<s:HGroup width="50%" horizontalAlign="right">
+					<s:Button label="수 정"
+							  click="goWrite('modify', uint(read_no.text), read_subject.text, read_memo.text)" 
+							  icon="asset/icon/modify16.png"/>
+					<s:Button label="답 변"
+							  click="goWrite('reply', uint(read_no.text), read_subject.text, read_memo.text)" 
+							  icon="asset/icon/reply16.png"/>
+					<s:Button label="삭 제" click="goDelete()" 
+							  icon="asset/icon/trash16.png"/>	
+				</s:HGroup>
+			</s:HGroup>
+		</s:VGroup>
+		
+		<!-- 글 쓰기 -->
+		
+		<s:VGroup includeIn="Write" width="100%" height="100%" paddingBottom="5" paddingLeft="5"
+				  paddingRight="5" paddingTop="5">
+			<s:HGroup width="100%">
+				<s:Label width="70" text="제 목"/>
+				<s:TextInput id="w_subject" width="100%"/>
+			</s:HGroup>
+			<s:HGroup width="100%" height="100%">
+				<local:TextLayoutEditorCanvas id="w_memo" width="100%" height="100%" creationComplete="editorMain();"/>
+			</s:HGroup>
+			<s:HGroup width="100%" height="25" verticalAlign="bottom">
+				<s:HGroup width="50%">
+					<s:Button label="목록으로" click="doList(sort, page, searchType, searchTxt)" 
+							  icon="asset/icon/news16.png"/>
+				</s:HGroup>
+				<s:HGroup width="50%" horizontalAlign="right">
+					<s:Button label="글쓰기" click="doWrite()" 
+							  icon="asset/icon/write16.png"/>
+				</s:HGroup>
+			</s:HGroup>
+		</s:VGroup>
+	</s:HGroup>
+</s:Window>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resize:ResizableWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+						xmlns:resize="Classes.resize.*"
+						xmlns:s="library://ns.adobe.com/flex/spark"
+						xmlns:mx="library://ns.adobe.com/flex/mx"
+						width="280" height="180" close="closeWindow()" creationComplete="main();"
+						fontSize="12" showCloseButton="true" title="About">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import flash.net.URLRequest;
+			import flash.net.navigateToURL;
+			
+			import mx.core.FlexGlobals;
+			import mx.core.IFlexDisplayObject;
+			import mx.managers.PopUpManager;
+			
+			private var index:Object = mx.core.FlexGlobals.topLevelApplication;
+			
+			private function main():void {
+				this.title = "About";
+				
+				this.x = (index.stage.stageWidth - this.width) / 2;
+				this.y = (index.stage.stageHeight - this.height) / 2;
+				
+			}
+			private function closeWindow():void {
+				PopUpManager.removePopUp(this as IFlexDisplayObject);
+			}
+			
+			protected function label1_clickHandler(event:MouseEvent):void
+			{
+				navigateToURL(new URLRequest("http://gotoweb.co.kr/"), "_blank");
+			}
+			
+		]]>
+	</fx:Script>
+	<s:VGroup width="100%" height="100%" horizontalAlign="center" horizontalCenter="0"
+			  verticalAlign="middle" verticalCenter="0">
+		<s:Label text="한성대 시간표 작성 프로그램"/>
+		<s:Label/>
+		<s:Label text="남정호 1194060"/>
+		<s:Label text="정보시스템공학과"/>
+		<s:Label/>
+		<s:Label click="label1_clickHandler(event)" color="#0084FF" text="http://gotoweb.co.kr/"
+				 textDecoration="underline"/>
+	</s:VGroup>
+	
+</resize:ResizableWindow>

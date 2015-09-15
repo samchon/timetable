@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009"
+					   xmlns:s="library://ns.adobe.com/flex/spark"
+					   xmlns:mx="library://ns.adobe.com/flex/mx"
+					   width="1280" height="720" creationComplete="main()">
+	<fx:Style source="index.css"/>
+	<fx:Declarations>
+		<s:ArrayCollection id="secondMajorCheckArray">
+			<fx:Object label="심화전공" data="deep"/>
+			<fx:Object label="복수전공" data="double"/>
+			<fx:Object label="부전공" data="minor"/>
+		</s:ArrayCollection>
+		<s:ArrayCollection id="majorArray">
+			<fx:Object label="한국어문학부" code="KOR" combo="A030"/>
+			<fx:Object label="영어영문학부" code="ENG" combo="A040"/>
+			<fx:Object label="역사문화학부" code="HIS" combo="A050"/>
+			<fx:Object label="지식정보학부" code="LIS" combo="A060"/>
+			<fx:Object label="경영학부" code="MGT" combo="D040"/>
+			<fx:Object label="무역학과" code="TRA" combo="D121"/>
+			<fx:Object label="경제학과" code="ECM" combo="D132"/>
+			<fx:Object label="행정학과" code="PUB" combo="D142"/>
+			<fx:Object label="부동산학과" code="EST" combo="D172"/>
+			<fx:Object label="부동산경영학과" code="REM" combo="D181"/>
+			<fx:Object label="의생활학부" code="DFB" combo="G010"/>
+			<fx:Object label="의류패션산업전공" code="AFB" combo="G012"/>
+			<fx:Object label="패션디자인전공" code="FAS" combo="G013"/>
+			<fx:Object label="인테리어디자인전공" code="INT" combo="G033"/>
+			<fx:Object label="시각·영상디자인전공" code="VIS" combo="G035"/>
+			<fx:Object label="인터랙티브엔터테인먼트" code="ITA" combo="G038"/>
+			<fx:Object label="애니메이션·제품디자인전공" code="ANP" combo="G039"/>
+			<fx:Object label="무용학과" code="DAN" combo="G111"/>
+			<fx:Object label="회화과" code="PAI" combo="G161"/>
+			<fx:Object label="멀티미디어공학과" code="MME" combo="K101"/>
+			<fx:Object label="컴퓨터공학과" code="COM" combo="K111"/>
+			<fx:Object label="정보통신공학과" code="ICE" combo="K121"/>
+			<fx:Object label="정보시스템공학과" code="ISE" combo="K131"/>
+			<fx:Object label="기계시스템공학과" code="MEC" combo="K151"/>
+			<fx:Object label="산업경영공학과" code="IND" combo="K161"/>
+			<fx:Object label="지식서비스·컨설팅연계전공" code="KSC" combo="K511"/>
+			<fx:Object label="교직" code="EDU" combo="N110"/>
+			<fx:Object label="교양" code="GEN" combo="L110"/>
+		</s:ArrayCollection>
+		<mx:StringValidator id="idValidator" property="text" required="true" source="{login_id}"
+							trigger="{loginButton}" triggerEvent="click"/>
+		<mx:StringValidator id="passValidator" property="text" required="true" source="{login_pass}"
+							trigger="{loginButton}" triggerEvent="click"/>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.events.DragEvent;
+			include "scripts/login.as"
+			include "scripts/lectureList.as"
+			include "scripts/main.as"
+			include "scripts/filter.as"
+			include "scripts/drawTable.as"
+			include "scripts/save.as"
+			include "scripts/modifyScore.as"
+			include "scripts/history.as"
+			include "scripts/cheat.as"
+			include "scripts/air.as"
+		]]>
+	</fx:Script>
+	
+	<s:states>
+		<s:State name="loginFrame"/>
+		<s:State name="hansungFrame"/>
+		<s:State name="tableFrame"/>
+		<s:State name="historyFrame"/>
+	</s:states>
+	
+	<s:BorderContainer width="100%" height="100%"
+					   backgroundImage="@Embed('assets/background.gif')"
+					   backgroundImageFillMode="repeat"/>
+	
+	<mx:Panel includeIn="loginFrame" horizontalCenter="0" title="Log-in" verticalCenter="0">
+		<s:Form width="230" defaultButton="{loginButton}">
+			<s:FormItem height="25" label="학번">
+				<s:TextInput id="login_id" width="120"/>
+			</s:FormItem>
+			<s:FormItem height="25" label="비밀번호">
+				<s:TextInput id="login_pass" width="120" displayAsPassword="true"/>
+			</s:FormItem>
+		</s:Form>
+		<mx:VBox width="100%" paddingBottom="10" paddingLeft="10" paddingRight="10">
+			<mx:HBox>
+				<s:ComboBox id="secondMajorCheckCombo" width="80"
+							 change="secondMajorCheckCombo_Handler()"
+							 dataProvider="{secondMajorCheckArray}" selectedIndex="0"/>
+				<s:ComboBox id="secondMajorCombo" width="120" dataProvider="{majorArray}"
+							 enabled="false" prompt="다전공 학과(부)">
+					<s:layout>
+						<s:VerticalLayout requestedRowCount="10" horizontalAlign="contentJustify" />
+					</s:layout>
+				</s:ComboBox>
+			</mx:HBox>
+		</mx:VBox>
+		<mx:ControlBar>
+			<mx:HBox width="100%" horizontalAlign="right">
+				<mx:HBox width="50%">
+					<s:CheckBox id="loginCookie" label="Auto Login"/>
+				</mx:HBox>
+				<mx:HBox width="50%" horizontalAlign="right">
+					<s:Button id="loginButton" label="Log-in" click="doLogin()"
+							  icon="@Embed(source='assets/img/key16.png')"/>
+				</mx:HBox>
+			</mx:HBox>
+		</mx:ControlBar>
+		<!-- <s:HGroup width="100%" horizontalAlign="right"> -->
+		
+		<!-- </s:HGroup> -->
+	</mx:Panel>
+		
+	<s:VGroup excludeFrom="loginFrame" width="100%" height="100%">
+		<mx:TabNavigator width="100%" dropShadowVisible="true" paddingBottom="5" paddingTop="5">
+			<mx:HBox width="100%" label=" - Main - ">
+				<s:Button click="newFile()" skinClass="button.newButton"/>
+				<s:Button click="open()" skinClass="button.openButton"/>
+				<s:Button click="save()" skinClass="button.saveButton"/>
+				<s:Button includeIn="historyFrame" click="currentState = 'tableFrame'" skinClass="button.presentButton"/>
+				<s:Button includeIn="tableFrame, hansungFrame" click="currentState = 'historyFrame';" skinClass="button.historyButton"/>
+				<s:Button click="goCommunity()" skinClass="button.communityButton"/>
+				<s:Button click="doLogout()" skinClass="button.logoutButton"/>
+				<s:Button click="close()" skinClass="button.exitButton"/>
+			</mx:HBox>
+			<mx:HBox width="100%" label=" - Export - ">
+				<s:Button click="export('doc');" skinClass="button.wordButton"/>
+				<s:Button click="export('xls');" skinClass="button.excelButton"/>
+				<s:Button click="saveAsPNG(event);" skinClass="button.picButton"/>
+			</mx:HBox>
+			<mx:HBox width="100%" label=" - Help - ">
+				<s:Button click="var aboutPopup:IFlexDisplayObject = PopUpManager.createPopUp(this, aboutWindow, true);" skinClass="button.aboutButton"/>
+			</mx:HBox>
+		</mx:TabNavigator>
+		<mx:HBox includeIn="hansungFrame, tableFrame" width="100%" height="100%"
+				 styleName="padding10">
+			<mx:Panel height="100%" styleName="padding5" title="신청 목록">
+				<mx:VBox height="100%">
+					<mx:HBox width="100%" horizontalAlign="right">
+						<s:Label text="과목 코드/분반"/>
+						<s:TextInput id="subjectText" width="100"/>
+						<s:TextInput id="divideText" width="30"/>
+						<s:Button width="65" label="추가"
+								   click="addSubject(subjectText.text, divideText.text, true)"/>
+					</mx:HBox>
+					
+					<mx:DataGrid id="tableDataGrid" height="100%" allowMultipleSelection="true"
+								 dataProvider="{tableArray}"
+								 doubleClick="tableDataGrid_DoubleClick(event)"
+								 doubleClickEnabled="true" dropEnabled="true">
+						<mx:columns>
+							<mx:DataGridColumn width="60" dataField="code" headerText="코드"/>
+							<mx:DataGridColumn width="100" dataField="subject" headerText="과목명"/>
+							<mx:DataGridColumn width="37.5" dataField="divide" headerText="분반"/>
+							<mx:DataGridColumn width="55" dataField="kind" headerText="분류"/>
+							<mx:DataGridColumn width="37.5" dataField="credit" headerText="학점"/>
+							<mx:DataGridColumn width="70" dataField="professor" headerText="교수"/>
+						</mx:columns>
+					</mx:DataGrid>
+					<mx:HBox width="100%">
+						<mx:HBox width="50%">
+							<s:Button id="applyBtn" label="수강 신청" click="goApply()" visible="false"
+									   icon="@Embed(source='assets/img/check16.png')"/>
+						</mx:HBox>
+						<mx:HBox width="50%" horizontalAlign="right">
+							<s:Button includeIn="tableFrame" label="전체 목록"
+									   click="this.currentState = 'hansungFrame';"
+									   icon="@Embed(source='assets/img/news16.png')"/>
+							<s:Button includeIn="hansungFrame" label="시간표"
+									   click="this.currentState = 'tableFrame';"
+									   icon="@Embed(source='assets/img/address16.png')"/>
+							
+							<s:Button width="65" label="삭제" click="delSubject()"
+									   icon="@Embed(source='assets/img/trash16.png')"/>
+						</mx:HBox>
+					</mx:HBox>
+				</mx:VBox>
+			</mx:Panel>
+			<mx:VBox width="100%" height="100%">
+				<mx:Panel includeIn="tableFrame" width="100%" height="100%" styleName="padding5"
+						  title="{panelTitle}">
+					<s:VGroup width="100%" height="100%">
+						<s:HGroup width="100%">
+							<s:CheckBox id="minCheck" label="최소 적용" change="tableRefresh()" selected="true"/>
+							<s:CheckBox id="maxCheck" label="최대 적용" change="tableRefresh()" selected="true"/>
+						</s:HGroup>
+						<mx:HTML width="100%" height="100%" htmlText="{tableHTMLText}"/>
+					</s:VGroup>
+				</mx:Panel>
+				<mx:Panel includeIn="hansungFrame" width="100%" height="100%" styleName="padding5"
+						  title="{panelTitle}">
+					<s:VGroup width="100%" height="100%">
+						<s:ComboBox id="lectureCombo" width="160"
+									 change="getList(lectureCombo.selectedItem.code, lectureCombo.selectedItem.combo);"
+									 dataProvider="{majorArray}" prompt="시간표 조회">
+							<s:layout>
+								<s:VerticalLayout requestedRowCount="10" horizontalAlign="contentJustify" />
+							</s:layout>
+						</s:ComboBox>
+						<mx:DataGrid id="lectureDataGrid" width="100%" height="100%"
+									 creationComplete="getList(theMajorCode.substring(0, 3), sql.query('select combo from majorArray where code=' + theMajorCode).combo0);"
+									 dataProvider="{listArray}"
+									 doubleClick="lectureDataGrid_DoubleClick(event)"
+									 doubleClickEnabled="true"
+									 dragComplete="lectureDataGrid_dragCompleteHandler(event)"
+									 dragEnabled="true">
+							<mx:columns>
+								<!-- listArray.addItem({code:subjectCode, subject:subjectName, kind:subjectKind, credit:subjectCredit, divide:subjectDivide, day:subjectDay, grade:subjectGrade, professor:subjectProfessor, day:subjectDay, classRoom:subjectClass}); -->
+								<mx:DataGridColumn width="100" dataField="code" headerText="과목 코드"/>
+								<mx:DataGridColumn dataField="subject" headerText="과목명"/>
+								<mx:DataGridColumn width="60" dataField="kind" headerText="구분"/>
+								<mx:DataGridColumn width="40" dataField="mid" headerText="주야"/>
+								<mx:DataGridColumn width="40" dataField="credit" headerText="학점"/>
+								<mx:DataGridColumn width="40" dataField="divide" headerText="분반"/>
+								<mx:DataGridColumn width="40" dataField="grade" headerText="학년"/>
+								<mx:DataGridColumn width="100" dataField="professor" headerText="교수"/>
+								<mx:DataGridColumn width="40" dataField="week" headerText="요일"/>
+								<mx:DataGridColumn width="40" dataField="hour" headerText="교시"/>
+								<mx:DataGridColumn width="120" dataField="classRoom" headerText="강의실"/>
+							</mx:columns>
+						</mx:DataGrid>
+						<s:Label text="시간표에 추가하기 : 왼쪽 목록으로 드래그"/>
+						<s:Label text="강의계획표 보기 : 더블 클릭"/>
+					</s:VGroup>
+				</mx:Panel>
+				<mx:DataGrid width="100%" height="95" dataProvider="{scoreArray}"
+							 dropShadowVisible="true" verticalScrollPolicy="off"
+							 sortableColumns="false">
+					<mx:columns>
+						<mx:DataGridColumn width="80" dataField="index" headerText="분 류"/>
+						<mx:DataGridColumn dataField="totalScore" headerText="총 학점"/>
+						<mx:DataGridColumn dataField="majorTotal" headerText="총 전공"/>
+						<mx:DataGridColumn visible="{theSecondMajorBoolean}"
+										   dataField="secondMajorTotal"
+										   headerText="총 {theSecondMajorTypeToColumn}전공"/>
+						<mx:DataGridColumn dataField="cultureTotal" headerText="총 교양"/>
+						<mx:DataGridColumn dataField="majorBasis" headerText="전공 기초"/>
+						<mx:DataGridColumn dataField="majorDesignated" headerText="전공 지정"/>
+						<mx:DataGridColumn dataField="majorFree" headerText="전공 선택"/>
+						<mx:DataGridColumn visible="{theSecondMajorBoolean}"
+										   dataField="secondMajorBasis"
+										   headerText="{theSecondMajorTypeToColumn}전기"/>
+						<mx:DataGridColumn visible="{theSecondMajorBoolean}"
+										   dataField="secondMajorDesignated"
+										   headerText="{theSecondMajorTypeToColumn}전지"/>
+						<mx:DataGridColumn visible="{theSecondMajorBoolean}"
+										   dataField="secondMajorFree"
+										   headerText="{theSecondMajorTypeToColumn}전선"/>
+						<mx:DataGridColumn dataField="majorNormal" headerText="일반 선택"/>
+						<mx:DataGridColumn dataField="cultureEssential" headerText="핵심 교양"/>
+						<mx:DataGridColumn dataField="cultureA" headerText="핵교A"/>
+						<mx:DataGridColumn dataField="cultureB" headerText="핵교B"/>
+						<mx:DataGridColumn dataField="cultureFree" headerText="교양 일반"/>
+					</mx:columns>
+				</mx:DataGrid>
+			</mx:VBox>
+			
+			<!--
+			<mx:Panel height="100%" title="간이 확인">
+				<mx:DataGrid width="400" height="100%" dataProvider="{tableTimeArray}"/>
+			</mx:Panel>
+			-->
+		</mx:HBox>
+		
+		<mx:HBox includeIn="historyFrame" width="100%" height="100%" styleName="padding10">
+			<mx:Panel height="100%" styleName="padding5" title="신청 목록">
+				<mx:VBox height="100%">
+					<mx:HBox width="100%" horizontalAlign="right">
+						<s:ComboBox id="historyCombo" change="historyCombo_Change(event)"
+									 dataProvider="{historyArray}" prompt="과거 시간표"/>
+					</mx:HBox>
+					<mx:DataGrid id="historyDataGrid" height="100%" allowMultipleSelection="true"
+								 dataProvider="{historyTableArray}"
+								 doubleClick="tableDataGrid_DoubleClick(event)"
+								 doubleClickEnabled="true" dropEnabled="true">
+						<mx:columns>
+							<mx:DataGridColumn width="60" dataField="code" headerText="코드"/>
+							<mx:DataGridColumn width="100" dataField="subject" headerText="과목명"/>
+							<mx:DataGridColumn width="37.5" dataField="divide" headerText="분반"/>
+							<mx:DataGridColumn width="55" dataField="kind" headerText="분류"/>
+							<mx:DataGridColumn width="37.5" dataField="credit" headerText="학점"/>
+							<mx:DataGridColumn width="70" dataField="professor" headerText="교수"/>
+						</mx:columns>
+					</mx:DataGrid>
+				</mx:VBox>
+			</mx:Panel>
+			<mx:Panel width="100%" height="100%" styleName="padding5" title="과거 시간표">
+				<s:VGroup width="100%" height="100%">
+					<s:HGroup width="100%">
+						<s:HGroup width="50%">
+							<s:CheckBox id="historyMinCheck" label="최소 적용"
+										 change="history_tableRefresh()" selected="true"/>
+							<s:CheckBox id="historyMaxCheck" label="최대 적용"
+										 change="history_tableRefresh()" selected="true"/>
+						</s:HGroup>
+						<s:HGroup width="50%" horizontalAlign="right">
+						</s:HGroup>
+					</s:HGroup>
+					<mx:HTML width="100%" height="100%" htmlText="{historyHTMLText}"/>
+				</s:VGroup>
+			</mx:Panel>
+		</mx:HBox>
+	</s:VGroup>
+	
+	<mx:Panel id="updateWin" visible="false" width="200" height="130" horizontalAlign="center"
+			  horizontalCenter="0" styleName="padding10" title="Hangang Updater"
+			  verticalAlign="middle" verticalCenter="0">
+		<s:VGroup>
+			<s:Label text="새 버젼이 나왔습니다."/>
+			<s:Label text="업데이트 하시겠습니까?"/>
+			<s:Label height="10"/>
+			<s:HGroup>
+				<s:Button label="yes" click="appUpdater()"/>
+				<s:Label width="0"/>
+				<s:Button label="no" click="updateWin.visible = false"/>
+			</s:HGroup>
+		</s:VGroup>
+	</mx:Panel>
+	
+</s:WindowedApplication>

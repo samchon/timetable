@@ -1,0 +1,22 @@
+/* CSS file */
+
+@namespace s "library://ns.adobe.com/flex/spark";
+@namespace mx "library://ns.adobe.com/flex/mx";
+
+global
+{
+	font-family: Arial;
+	fontSize: 11;
+}
+.padding5 {
+	paddingTop:5; paddingBottom:5;
+	paddingLeft:5; paddingRight:5;
+}
+.padding10 {
+	paddingTop:10; paddingBottom:10;
+	paddingLeft:10; paddingRight:10;
+}
+
+s|Label.centerLabel {
+	text-align: center;
+}

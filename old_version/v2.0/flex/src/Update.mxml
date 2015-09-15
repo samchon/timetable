@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   xmlns:ui="comp.ui.*"
+			   close="close(event)" 
+			   
+			   creationComplete="main(event)"
+			   currentState="checkFrame" 
+			   title="업데이트 관리자">
+	<s:states>
+		<s:State name="updateFrame"/>
+		<s:State name="checkFrame"/>
+	</s:states>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import data.URL;
+			
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			
+			private var _parentMovie:timetable;
+			public function set parentMovie(obj:timetable):void {	_parentMovie = obj;	}
+			
+			private var air:Object = new Object();
+			private var airLoader:Loader = new Loader();
+			private static var AppURL:String;
+			private static const AppID:String = "timetable";
+			private static const AirVersion:String = "3.1";
+			[Bindable]private var thisVersion:String;
+			[Bindable]private var newVersion:String;
+			
+			/*
+			======================================
+				업데이트 체크
+			======================================
+			*/
+			private function main(event:FlexEvent):void {
+				(event.target as Update).removeEventListener(FlexEvent.CREATION_COMPLETE, main);
+				
+				var applicationDescriptor:XML = NativeApplication.nativeApplication.applicationDescriptor;
+				var adns:Namespace = applicationDescriptor.namespace();
+				thisVersion = applicationDescriptor.adns::versionNumber.toString();
+				
+				airLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, handleAir);
+				airLoader.load(new URLRequest("http://airdownload.adobe.com/air/browserapi/air.swf"));
+			}
+			private function handleAir(event:Event):void {
+				event.target.removeEventListener(Event.COMPLETE, handleAir);
+				air = airLoader.content;
+				
+				var sendURL:URLRequest = new URLRequest(URL.host + "/application/version.php");
+				var formData:URLVariables = new URLVariables();
+				formData.name = "timetable";
+				
+				sendURL.data = formData;
+				sendURL.method = URLRequestMethod.POST;
+				
+				var versionLoader:URLLoader = new URLLoader();
+				versionLoader.dataFormat = URLLoaderDataFormat.TEXT;
+				versionLoader.addEventListener(Event.COMPLETE, handleVersion);
+				versionLoader.load(sendURL);
+			}
+			private function handleVersion(event:Event):void {
+				event.target.removeEventListener(Event.COMPLETE, handleVersion);
+				
+				var replyData:XML = new XML(event.target.data);
+				var udns:Namespace = replyData.namespace();
+				newVersion = replyData.udns::versionNumber.toString();
+				AppURL = replyData.udns::url.toString();
+				trace(AppURL);
+				
+				if(newVersion != "" && newVersion != thisVersion)
+					this.currentState = "updateFrame";
+				else {
+					PopUpManager.removePopUp(this);
+					_parentMovie.loginMovie.main();
+				}
+			}
+			/*
+			======================================
+				업데이트 설치
+			======================================
+			*/
+			private function doUpdate(event:MouseEvent):void {
+				air.installApplication(AppURL, AirVersion);
+				_parentMovie.close();
+			}
+			
+			//업데이트 거부 시 종료 -> 강제 업데이트 성격임
+			private function close(event:CloseEvent):void {
+				_parentMovie.close();
+			}
+		]]>
+	</fx:Script>
+	<ui:VGroup includeIn="checkFrame" 
+			   horizontalAlign="center" padding="10">
+		<s:Label text="버젼 정보를 확인 중입니다..." />
+		<s:Spacer height="10" />
+		<mx:ProgressBar indeterminate="true" />
+	</ui:VGroup>
+	<ui:VGroup includeIn="updateFrame" 
+			   padding="10">
+		<s:Label fontWeight="bold" text="새 버젼이 나왔습니다."/>
+		<s:Label text="     현재 버젼: {thisVersion}" />
+		<s:Label text="         새 버젼: {newVersion}" />
+		<s:Spacer height="10"/>
+		<s:HGroup width="100%" horizontalAlign="center">
+			<s:Button label="업데이트" click="doUpdate(event)"
+					  icon="asset/icon/move16.png"/>
+		</s:HGroup>
+	</ui:VGroup>
+</s:TitleWindow>

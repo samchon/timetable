@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Panel xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:ui="comp.ui.*"
+
+		 title="Log-in"
+		 height="195">
+	<fx:Script>
+		<![CDATA[
+			import data.URL;
+			import data.Util;
+			import data.base.*;
+			import data.base.Profile;
+			
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			
+			private var _parent:timetable;
+			public function set parentMovie(movie:timetable):void {
+				_parent = movie;
+			}
+			
+			private var loginSharedObject:SharedObject;
+			public function main():void {
+				loginSharedObject = SharedObject.getLocal("timetable");
+				
+				if(loginSharedObject.data.id != null) {
+					login_id.text = loginSharedObject.data.id;
+					login_pass.text = loginSharedObject.data.pass;
+					secondMajorTypeCombo.selectedIndex = loginSharedObject.data.type;
+					secondMajorCombo.selectedIndex = loginSharedObject.data.second;
+					
+					goLogin();
+				}
+			}
+			private function loginClicked(event:MouseEvent):void {
+				goLogin();
+			}
+			private function goLogin():void {
+				var id:String = login_id.text;
+				var pass:String = login_pass.text;
+				
+				var sendURL:URLRequest = new URLRequest(URL.login);
+				var formData:URLVariables = new URLVariables();
+				formData.id = id;
+				formData.passwd = pass;
+				
+				sendURL.data = formData;
+				sendURL.method = URLRequestMethod.POST;
+				
+				var loginLoader:URLLoader = new URLLoader();
+				loginLoader.dataFormat = URLLoaderDataFormat.BINARY;
+				loginLoader.addEventListener(Event.COMPLETE, handleLogin);
+				loginLoader.load(sendURL);
+			}
+			private function handleLogin(event:Event):void {
+				(event.target as URLLoader).removeEventListener(Event.COMPLETE, handleLogin); //리스터를 해제해줘야 한다.
+				var replyData:String = Util.encode(event.target.data);
+				
+				if(replyData.indexOf("아이디와 비밀번호가 일치하지 않습니다.") != -1) { //로그인 실패
+					mx.controls.Alert.show("아이디나 비밀번호가 일치하지 않습니다.", "로그인 실패");
+					return;
+				}
+				
+				if(loginCookie.selected) { //자동 로그인 체크가 되어있다면
+					loginSharedObject.data.id = login_id.text;
+					loginSharedObject.data.pass = login_pass.text;
+					loginSharedObject.data.type = secondMajorTypeCombo.selectedIndex;
+					loginSharedObject.data.second = secondMajorCombo.selectedItem ? secondMajorCombo.selectedIndex : -1;
+					loginSharedObject.flush();
+				}
+				Profile.id = login_id.text;
+				if(secondMajorCombo.selectedItem) { //다전공이 선택되어있다면
+					Profile.secondMajorType = secondMajorTypeCombo.selectedIndex;
+					Profile.secondMajor = secondMajorCombo.selectedIndex;
+				}
+				trace("Login is completed");
+				_parent.currentState = "listFrame";
+				_parent.loginFinished();
+			}
+			public function logout():void {
+				login_id.text = "";
+				login_pass.text = "";
+				secondMajorTypeCombo.selectedIndex = 0;
+				secondMajorCombo.selectedIndex = -1;
+				loginCookie.selected = false;
+				loginSharedObject.clear();
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<mx:StringValidator id="idValidator" property="text" required="true"
+							trigger="{loginButton}" triggerEvent="click"
+							source="{login_id}"/>
+		<mx:StringValidator id="passValidator" property="text" required="true"
+							trigger="{loginButton}" triggerEvent="click"
+							source="{login_pass}"/>
+	</fx:Declarations>
+	<s:VGroup width="100%" height="100%" horizontalAlign="center">
+		<s:Form defaultButton="{loginButton}" 
+				width="100%">
+			<s:FormItem label="학번" height="25" >
+				<s:TextInput id="login_id" 
+							 width="120"/>
+			</s:FormItem>
+			<s:FormItem label="비밀번호" height="25">
+				<s:TextInput id="login_pass" 
+							 displayAsPassword="true"
+							 width="120"/>
+			</s:FormItem>
+		</s:Form>
+			<ui:HGroup padding="5">
+				<s:ComboBox id="secondMajorTypeCombo"
+							dataProvider="{SecondMajor.list}"
+							selectedIndex="0"
+							width="80"/>
+				<s:ComboBox id="secondMajorCombo" 
+							dataProvider="{Major.list}"
+							enabled="{secondMajorTypeCombo.selectedIndex != 0}" 
+							prompt="다전공 학과(부)"
+							width="120">
+					<!--<s:layout>
+						<s:VerticalLayout requestedRowCount="10" horizontalAlign="contentJustify" />
+					</s:layout>-->
+				</s:ComboBox>
+			</ui:HGroup>
+	</s:VGroup>
+	
+	<s:controlBarContent>
+		<s:HGroup width="100%" horizontalAlign="right">
+			<s:CheckBox id="loginCookie" label="Auto Login"/>
+			<s:Spacer width="100%" />
+			<s:Button id="loginButton" label="Log-in"
+					  click="loginClicked(event)"
+					  icon="asset/icon/key16.png"/>
+		</s:HGroup>
+	</s:controlBarContent>
+</s:Panel>

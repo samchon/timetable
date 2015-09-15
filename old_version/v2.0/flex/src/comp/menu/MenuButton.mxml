@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		  xmlns:s="library://ns.adobe.com/flex/spark" 
+		  xmlns:mx="library://ns.adobe.com/flex/mx"
+		  
+		  rollOver="rollOver(event)" 
+		  rollOut="rollOut(event)" 
+		  mouseDown="rollOut(event)" 
+		  
+		  gap="0">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			private var _label:String;
+			public function set label(str:String):void {
+				_label = str;
+				labelText.text = str;
+			}
+			public function get label():String	{	return _label;	}
+			public function set source(src:String):void {
+				image_out.source = "asset/button/" + src + ".png";
+				image_over.source = "asset/button/" + src + "_over.png";
+			}
+			private function rollOver(event:MouseEvent):void {
+				image_out.visible = false;
+				image_over.visible = true;
+				labelText.htmlText = "<u>" + _label + "</u>";
+			}
+			private function rollOut(event:MouseEvent):void {
+				image_out.visible = true;
+				image_over.visible = false;
+				labelText.htmlText = _label;
+			}
+		]]>
+	</fx:Script>
+	<s:Group>
+		 <s:BitmapImage id="image_out" 
+						width="80" height="60" />
+		 <s:BitmapImage id="image_over" 
+						width="80" height="60" 
+						visible="false" />
+	 </s:Group>
+	<mx:Label id="labelText" 
+			  textAlign="center"
+			  width="100%" />
+</s:VGroup>

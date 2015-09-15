@@ -1,0 +1,5 @@
+﻿<?
+
+	$dbName = "hansung_board";
+	
+?>

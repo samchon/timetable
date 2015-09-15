@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Window xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		  xmlns:s="library://ns.adobe.com/flex/spark" 
+		  xmlns:mx="library://ns.adobe.com/flex/mx"
+		  
+		  showStatusBar="false"
+		  creationComplete="main(event)"
+		  
+		  width="700">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			
+			private var _parentWindow:timetable;
+			private var _url:String;
+			
+			private function main(event:FlexEvent):void {
+				(event.target as Syllabus).removeEventListener(FlexEvent.CREATION_COMPLETE, main);
+				Root.windows.push( this );
+				
+				html.location = "http://info.hansung.ac.kr/servlet/s_dae.letturerplanview?code=" + _url;
+				
+				this.height = _parentWindow.height * .8;
+			}
+			public function set parentWindow(win:timetable):void {
+				_parentWindow = win;
+			}
+			public function set url(url:String):void {
+				_url = url;
+			}
+		]]>
+	</fx:Script>
+	<mx:HTML id="html" width="100%" height="100%" />
+</s:Window>

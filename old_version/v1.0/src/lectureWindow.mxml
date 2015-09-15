@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resize:ResizableWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+						xmlns:resize="Classes.resize.*"
+						xmlns:s="library://ns.adobe.com/flex/spark"
+						xmlns:mx="library://ns.adobe.com/flex/mx"
+						showCloseButton="true" close="closeWindow()" creationComplete="main();">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.core.FlexGlobals;
+			import mx.core.IFlexDisplayObject;
+			import mx.managers.PopUpManager;
+			
+			private var index:Object = mx.core.FlexGlobals.topLevelApplication;
+			public var link:String;
+			public var subject:String;
+			public var code:String;
+			public var divide:String;
+			
+			private function main():void {
+				this.width = 700;
+				this.height = index.stage.stageHeight * .85;
+
+				htmlViewer.location = "http://www.hansung.ac.kr/servlet/s_dae.letturerplanview?code=" + link;
+				this.title = subject + "(" + code + " - " + divide + ")";
+			}
+			private function closeWindow():void {
+				PopUpManager.removePopUp(this as IFlexDisplayObject);
+			}
+		]]>
+	</fx:Script>
+	<mx:HTML id="htmlViewer" width="100%" height="100%"/>
+</resize:ResizableWindow>

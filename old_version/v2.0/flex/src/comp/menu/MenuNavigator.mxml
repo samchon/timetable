@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TabNavigator xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				 xmlns:s="library://ns.adobe.com/flex/spark" 
+				 xmlns:mx="library://ns.adobe.com/flex/mx" 
+				 xmlns:ui="comp.ui.*"
+				 xmlns:menu="comp.menu.*"
+				 
+				 creationComplete="main(event)"
+				 dropShadowVisible="true">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			import mx.graphics.codec.PNGEncoder;
+			import mx.managers.PopUpManager;
+			
+			private var _parentMovie:Object;
+			public function set parentMovie(obj:Object):void {
+				_parentMovie = obj;
+			}
+			private var pngData:ByteArray;
+			
+			private function main(event:FlexEvent):void {
+				this.removeEventListener(FlexEvent.CREATION_COMPLETE, main);
+				if(_parentMovie is Previous)
+					this.removeElementAt(0);
+			}
+			private function clicked(event:MouseEvent):void {
+				var label:String = (event.currentTarget as MenuButton).label;
+				
+				switch( label ) {
+					case "About":
+						var aboutWindow:About = PopUpManager.createPopUp(parent, About, true) as About;
+						PopUpManager.centerPopUp(aboutWindow);
+						break;
+					case "그림으로":
+					case "워드로":
+					case "엑셀로":
+					case "브라우저로":
+						if(_parentMovie.applyGrid.dataProvider.length == 0)
+							return;
+						if(_parentMovie is timetable)
+							_parentMovie.saveForAndroid();
+						
+						if(label == "그림으로")
+							exportAsPNG();
+						else
+							exportAsHTML(label);
+						break;
+					default:
+						_parentMovie.menuButtonClicked(event);
+						break;
+				}
+			}
+			private function exportAsPNG():void {
+				var pngSource:BitmapData = new BitmapData(_parentMovie.stage.stageWidth, _parentMovie.stage.stageHeight);
+				pngSource.draw(_parentMovie as IBitmapDrawable);
+				var pngEncoder:PNGEncoder = new PNGEncoder();
+				pngData = pngEncoder.encode(pngSource); 
+				
+				var file:File = new File(File.desktopDirectory.nativePath + File.separator + _parentMovie.fileName + ".png");
+				file.addEventListener(Event.SELECT, handlePNG);
+				file.browseForSave("그림으로 보내기");
+			}
+			private function handlePNG(event:Event):void {
+				event.target.removeEventListener(Event.SELECT, handlePNG);
+				var file:File = event.target as File;
+				
+				var stream:FileStream = new FileStream();
+				stream.open(file, FileMode.WRITE);
+				stream.writeBytes(pngData);
+				stream.close();
+				file.openWithDefaultApplication();
+			}
+			private function exportAsHTML(label:String):void {
+				var extension:String = (label == "워드로") ? "doc" : ((label == "엑셀로") ? "xls" : "html");
+				
+				var file:File = new File(File.desktopDirectory.nativePath + File.separator + _parentMovie.fileName + "." + extension);
+				file.addEventListener(Event.SELECT, handleHTML);
+				file.browseForSave(label + "로 보내기");
+			}
+			private function handleHTML(event:Event):void {
+				event.target.removeEventListener(Event.SELECT, handleHTML);
+				var file:File = event.target as File;
+				
+				var stream:FileStream = new FileStream();
+				stream.open(file, FileMode.WRITE);
+				stream.writeUTFBytes(_parentMovie.html);
+				stream.close();
+				file.openWithDefaultApplication();
+			}
+		]]>
+	</fx:Script>
+	<s:NavigatorContent label=" - Main - ">
+		<ui:HGroup width="100%">
+			<menu:MenuButton label="새 파일" source="new" 
+						   click="clicked(event)"/>
+			<menu:MenuButton label="파일 열기" source="open" 
+						   click="clicked(event)"/>
+			<menu:MenuButton label="파일 저장" source="save" 
+						   click="clicked(event)"/>
+			<menu:MenuButton label="과거 시간표" source="history"
+						   click="clicked(event)"/>
+			<menu:MenuButton label="게시판" source="board" 
+						   click="clicked(event)"/>
+			<menu:MenuButton label="로그아웃" source="log-out" 
+						   click="clicked(event)"/>
+			<menu:MenuButton label="종료" source="close" 
+						   click="clicked(event)"/>
+		</ui:HGroup>
+	</s:NavigatorContent>
+	<s:NavigatorContent label=" - Export - ">
+		<ui:HGroup width="100%">
+			<menu:MenuButton label="워드로" source="to word" 
+						   click="clicked(event)"/>
+			<menu:MenuButton label="엑셀로" source="to excel"
+						   click="clicked(event)"/>
+			<menu:MenuButton label="브라우저로" source="to html"
+						   click="clicked(event)"/>
+			<menu:MenuButton label="그림으로" source="to picture"
+						   click="clicked(event)"/>
+		</ui:HGroup>
+	</s:NavigatorContent>
+	<s:NavigatorContent label=" - Help - ">
+		<ui:HGroup width="100%">
+			<menu:MenuButton label="About" source="about" 
+						   click="clicked(event)"/>
+		</ui:HGroup>
+	</s:NavigatorContent>
+</mx:TabNavigator>
